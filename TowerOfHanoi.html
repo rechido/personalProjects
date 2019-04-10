@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Tower of Hanoi</title>
+</head>
+<body>
+
+<canvas id="hanoi"></canvas>
+
+<br/>
+<br/>
+
+Game Level(1~50) : <input type="text" id="levelInput" onkeyup="enterkey();"/>
+
+<br/>
+<br/>
+
+Steps: <label id="text"></label>
+
+<br/>
+<br/>
+
+<p>Key: Z, X, C</p>
+<p>Rule: You cannot put a block on where smaller blocks took the position already.</p>
+<p>Winning Condition : All the blocks are at red tower.</p>
+
+<script type="text/javascript">
+var gs=20; // grid size
+var tower1=[];
+var tower2=[];
+var tower3=[];
+var tower1Center;
+var tower2Center;
+var tower3Center;
+var levelInput=1;
+var widthPerEach;
+var width;
+var height;
+var blocks=[];
+var grab;
+var step=0;
+
+window.onload=function(){
+	document.getElementById("levelInput").value = levelInput;
+	canv=document.getElementById("hanoi");	
+	ctx=canv.getContext("2d");	
+	document.addEventListener("keydown",keyPush);
+	initialize();
+	
+}
+
+function initialize(){
+	tower1=[];
+	tower2=[];
+	tower3=[];
+	blocks=[];
+	grab=null;
+	step=0;
+	
+	widthPerEach = 2*levelInput+1;
+	width = widthPerEach*3;
+	height = levelInput+10;
+	
+	
+	canv.width=width*gs;
+	canv.height=height*gs;
+	console.log(height);
+	console.log(gs);
+	console.log(height*gs);
+	
+	makeTower(levelInput);
+	makeBlock(levelInput);
+	stackBlockOnTower1();
+	drawing();
+}
+
+function drawing(){
+	// Drawing Canvas
+	ctx.fillStyle="black";
+	ctx.fillRect(0,0,canv.width, canv.height);
+	// Drawing Towers
+	ctx.fillStyle="#ccffcc";
+	ctx.fillRect((tower1Center-1)*gs,0,gs, canv.height);
+	ctx.fillStyle="#ffffcc";
+	ctx.fillRect((tower2Center-1)*gs,0,gs, canv.height);
+	ctx.fillStyle="#ffcccc";
+	ctx.fillRect((tower3Center-1)*gs,0,gs, canv.height);
+	// Drawing Blocks
+	
+	for(var cnt=0; cnt<tower1.length; cnt++){
+		ctx.fillStyle=tower1[cnt].color;
+		ctx.fillRect((tower1Center-(tower1[cnt].size+1)/2)*gs,(height-1-cnt)*gs,tower1[cnt].size*gs, gs);
+	}
+	for(var cnt=0; cnt<tower2.length; cnt++){
+		console.log(tower2.length);
+		ctx.fillStyle=tower2[cnt].color;
+		ctx.fillRect((tower2Center-(tower2[cnt].size+1)/2)*gs,(height-1-cnt)*gs,tower2[cnt].size*gs, gs);
+	}
+	for(var cnt=0; cnt<tower3.length; cnt++){
+		ctx.fillStyle=tower3[cnt].color;
+		ctx.fillRect((tower3Center-(tower3[cnt].size+1)/2)*gs,(height-1-cnt)*gs,tower3[cnt].size*gs, gs);
+	}
+	
+}
+
+function stackBlockOnTower1(){
+	for(var cnt=blocks.length-1; cnt>=0; cnt--){
+		tower1.push(blocks[cnt]);
+	}
+	
+	//console.log(tower1[0].size);
+}
+
+function makeBlock(level){
+	var toggler = true;
+	for(var cnt=1; cnt<=level; cnt++){
+		if(toggler){
+			var block = {size:2*cnt+1, color:"#f2f2f2"};
+			toggler = false;
+		}else{
+			var block = {size:2*cnt+1, color:"grey"};
+			toggler = true;
+		}
+			
+		blocks.push(block);
+	}	
+	//console.log(blocks);
+}
+
+function makeTower(level){
+	tower1Center=(widthPerEach+1)/2;
+	tower2Center=(widthPerEach+1)/2+widthPerEach;
+	tower3Center=(widthPerEach+1)/2+2*widthPerEach;
+}
+
+function keyPush(evt){
+	switch(evt.keyCode){
+	case 90: // z key
+		keyAction(tower1);
+		break;
+	case 88: // x key
+		keyAction(tower2);
+		break;
+	case 67: // c key
+		keyAction(tower3);
+		checkWin();
+		break;
+		
+	}
+}
+
+function keyAction(tower){
+	if(grab==null){
+		grab=tower.pop();
+		//console.log("grab: " + grab);
+	}else{
+		var top = tower.pop();
+		if(top==null){
+			tower.push(grab);
+			step++;
+			grab=null;
+		}else if(grab.size < top.size){
+			tower.push(top);
+			tower.push(grab);
+			step++;
+			grab=null;
+		}else{
+			alert("You cannot put the block on there!");
+			tower.push(top);
+			return;
+		}					
+	}
+	document.getElementById("text").innerHTML = step;
+	drawing();
+}
+
+function enterkey() {
+	if (window.event.keyCode == 13) { // enter key
+		levelInput = parseInt(document.getElementById("levelInput").value);
+		if (isNaN(levelInput) || levelInput<1 || levelInput>50) { 
+			alert("Please enter a number between 1~50.");
+			return 0; 
+		}		
+		initialize();
+	}
+	
+}
+
+function checkWin(){
+	if(tower3.length==levelInput){
+		setTimeout(function(){
+			alert("You Win! \n\n Steps: " + step);
+			levelInput++;
+			initialize();
+			}, 100);
+		
+		
+	}
+}
+
+</script>
+
+</body>
+</html>
