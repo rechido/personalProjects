@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title></title>
+</head>
+<body>
+
+<canvas id="gc" width="400" height="400" style="border: 1px solid black;"></canvas>
+
+
+
+<script type="text/javascript">
+var cx=200;
+var cy=200;
+var radius=200;
+
+
+window.onload=function(){
+	canv=document.getElementById("gc");
+	ctx=canv.getContext("2d");
+	
+	clock();
+    setInterval(clock,1000);
+}
+
+function drawClock(){
+	ctx.beginPath();
+	ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
+	ctx.stroke();
+	
+	ctx.fillStyle="#e6e6e6";
+    ctx.fill();
+    
+    for(var cnt=0; cnt<12; cnt++){
+    	ctx.beginPath();
+        ctx.moveTo(cx+0.8*radius*Math.cos(2 * Math.PI/12*cnt),cy+0.8*radius*Math.sin(2 * Math.PI/12*cnt));
+        ctx.lineTo(cx+radius*Math.cos(2 * Math.PI/12*cnt),cy+radius*Math.sin(2 * Math.PI/12*cnt));
+        ctx.stroke();       
+    }
+    
+    for(var cnt=0; cnt<12; cnt++){
+    	var hours = [3,4,5,6,7,8,9,10,11,12,1,2];
+    	var fontsize = 30;
+        ctx.font = fontsize.toString() + "px Arial";
+        ctx.fillStyle = "black";
+        ctx.textAlign = "center";
+     	ctx.fillText(hours[cnt].toString(),cx+0.7*radius*Math.cos(2 * Math.PI/12*cnt),cy+0.7*radius*Math.sin(2 * Math.PI/12*cnt)+fontsize/2);
+    }
+    
+    for(var cnt=0; cnt<60; cnt++){
+    	ctx.beginPath();
+        ctx.moveTo(cx+0.9*radius*Math.cos(2 * Math.PI/60*cnt),cy+0.9*radius*Math.sin(2 * Math.PI/60*cnt));
+        ctx.lineTo(cx+radius*Math.cos(2 * Math.PI/60*cnt),cy+radius*Math.sin(2 * Math.PI/60*cnt));
+        ctx.stroke();
+    }
+    
+    
+}
+
+function clock(){
+	drawClock();
+    drawRotatedRect(200,200,160,10,getTime("h")/12*360+getTime("m")/60*360/12+getTime("s")/60*360/60/12, "gray");
+    drawRotatedRect(200,200,180,5,getTime("m")/60*360+getTime("s")/60*360/60, "blue");
+    drawRotatedRect(200,200,200,2,getTime("s")/60*360, "red");
+}
+
+function drawRotatedRect(x, y, width, height, degrees, color){
+	ctx.save();
+	ctx.beginPath();
+	ctx.translate(x, y);
+	ctx.rotate((degrees-90)*Math.PI/180);
+	ctx.rect(0, -height/2, width, height);
+	ctx.fillStyle=color;
+    ctx.fill();
+	ctx.restore();
+}
+
+function getTime(str){
+	var date = new Date();
+	if(str=="h")
+		return date.getHours()>12? date.getHours()-12:date.getHours();
+	else if(str=="m")
+		return date.getMinutes();
+	else if(str=="s")
+		return date.getSeconds();
+}
+
+</script>
+
+</body>
+</html>
+
